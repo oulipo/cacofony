@@ -5,9 +5,13 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Article;
+use App\Entity\Categorie;
 use App\Repository\ArticleRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+
 
 class BlogController extends AbstractController
 {
@@ -25,8 +29,23 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/contact", name="contact")
      */
-    public function contact() {
-        return $this->render('blog/contact.html.twig');
+    public function contact(Request $request) {
+        $em = $this->getDoctrine()->getManager();
+        $contact = new \App\Entity\Contact();
+        $form = $this->createForm(\App\Form\ContactType::class, $contact);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contact->setCreatedAt(new \DateTime());
+            $em->persist($contact);
+            $em->flush();
+            return $this->redirectToRoute('blog');
+        }
+
+        return $this->render('blog/contact.html.twig', [
+            'myform' => $form->createView(),
+        ]);
     }
 
     /**
@@ -41,20 +60,42 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/blog/creer", name="creer")
+     * @Route("/blog/article/{id}/edit", name="editer")
      */
-    public function creer(Request $request) {
+    public function creer(Request $request, Article $article = null) {
         $em = $this->getDoctrine()->getManager();
-        $article = new Article();
+
+        if(!$article) {
+            $article = new Article();
+        }
+        
         $form = $this->createFormBuilder($article)
                      ->add('titre')
                      ->add('corps')
+                     ->add('categorie', EntityType::class, [
+                         'class' => Categorie::class,
+                         'choice_label' => 'libelle'
+                     ])
                      ->add('auteur')
                      ->add('creer', SubmitType::class)
                      ->getForm();
+        
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$article->getId()) {
+                $article->setCreeLe(new \DateTime());
+            }
+            $em->persist($article);
+            $em->flush();
+            return $this->redirectToRoute('blog');
+        }
 
         return $this->render('blog/creer.html.twig', [
-            'monFormulaire' => $form->createView()
+            'monFormulaire' => $form->createView(),
+            'edition' => ($article->getId() !== null) ? true : false
         ]);
     }
+
+    
 }
 
