@@ -1,0 +1,10 @@
+1) Réaliser la modification/mise à jour d'un article
+
+2) Créer un formulaire pour contact : 
+(nom 50, prenom 50, adresse 100, cp 5, ville 50, email 255, age integer, creeLe datetime, photo url)
+a- make:entity
+b- migration, migrate
+c- dans le controller, créer une méthode/function creerContact(Request $request)
+c'- parametrer la route
+d- utiliser le createFormBuilder pour produire le formulaire de création de contact
+e- l'afficher dans le template

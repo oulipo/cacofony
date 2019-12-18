@@ -8,6 +8,7 @@ use App\Entity\Article;
 use App\Repository\ArticleRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 
 class BlogController extends AbstractController
 {
@@ -41,20 +42,38 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/blog/creer", name="creer")
+     * @Route("/blog/article/{id}/edit", name="editer")
      */
-    public function creer(Request $request) {
+    public function creer(Request $request, Article $article = null) {
         $em = $this->getDoctrine()->getManager();
-        $article = new Article();
+
+        if(!$article) {
+            $article = new Article();
+        }
+        
         $form = $this->createFormBuilder($article)
                      ->add('titre')
                      ->add('corps')
                      ->add('auteur')
                      ->add('creer', SubmitType::class)
                      ->getForm();
+        
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$article->getId()) {
+                $article->setCreeLe(new \DateTime());
+            }
+            $em->persist($article);
+            $em->flush();
+            return $this->redirectToRoute('blog');
+        }
 
         return $this->render('blog/creer.html.twig', [
-            'monFormulaire' => $form->createView()
+            'monFormulaire' => $form->createView(),
+            'edition' => ($article->getId() !== null) ? true : false
         ]);
     }
+
+    
 }
 

@@ -5,7 +5,8 @@
 {% block body %}
 <ul>
     {% for article in articles %}
-    <li><a href="{{ path("detail", {'id': article.id}) }}">{{ article.titre }}</a></li>
+    <li><a href="{{ path("detail", {'id': article.id}) }}">{{ article.titre }}</a> | 
+    <a href="{{ path("editer", {'id': article.id}) }}">modifier</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

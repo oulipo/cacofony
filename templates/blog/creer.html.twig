@@ -2,8 +2,31 @@
 {# {% form_theme monFormulaire 'bootstrap_4_layout.html.twig' %} #}
 
 {% block body %}
-<h1>Créer un nouvel article</h1>
+{% if edition %}
+<h1>Modifier l'article</h1>
+{% else %}
+<h1>Créer un article</h1>
+{% endif %}
 
-{{ form(monFormulaire) }}
+{{ form_start(monFormulaire) }}
+
+{{ form_row(monFormulaire.titre) }}
+
+{{ form_row(monFormulaire.corps) }}
+
+{{ form_row(monFormulaire.auteur) }}
+
+{% if edition %}
+
+{{ form_row(monFormulaire.creer, { 'label': 'modifier' }) }}
+
+{% else %}
+
+{{ form_row(monFormulaire.creer, { 'label': 'créer' }) }}
+
+{% endif %}
+
+
+{{ form_end(monFormulaire) }}
 
 {% endblock %}
